@@ -22,7 +22,7 @@ public class Main {
 			new Member().setName("kazuho").insert(conn);
 
 			// SELECT FROM member WHERE (name=?) OR (name=?)
-			for (Member m : Member.name.is("yappo").or(Member.name.is("tokuhirom")).orderBy(Member.id).search(conn)) {
+			for (Member m : Member.name.is("yappo").or(Member.name.is("tokuhirom")).orderBy(Member.id.desc).search(conn)) {
 				System.out.println(Long.toString(m.getId()) + ":" + m.getName());
 			}
 
