@@ -30,7 +30,7 @@ public class Main {
 			Member.name.is("yappo").update(conn, new Member().setName("seiitaishogun"));
 
 			// SELECT FROM member WHERE id<?
-			for (Member m: Member.id.lessThan(1000).limit(1).search(conn)) {
+			for (Member m: Member.id.lessThan(1000L).limit(1).search(conn)) {
 				System.out.println(Long.toString(m.getId()) + ":" + m.getName());
 			}
 

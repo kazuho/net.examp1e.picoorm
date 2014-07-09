@@ -4,8 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
 import net.examp1e.picoorm.*;
+import net.examp1e.picoorm.types.*;
 
 // this class definition should be automatically generated from the DDL
 public class Member extends AbstractRow {
@@ -18,17 +18,15 @@ public class Member extends AbstractRow {
 		}
 		public ArrayList<String> getColumnNames(Member row) {
 			ArrayList<String> names = new ArrayList<String>();
-			if (row == null || row._id_isset)
+			if (row == null || row._id.isSet())
 				names.add("id");
-			if (row == null || row._name_isset)
+			if (row == null || row._name.isSet())
 				names.add("name");
 			return names;
 		}
 		public int bind(Member row, PreparedStatement ps, int index) throws SQLException {
-			if (row._id_isset)
-				setLong(ps, index++, row._id_value);
-			if (row._name_isset)
-				setString(ps, index++, row._name_value);
+			index = row._id.bindTo(ps, index);
+			index = row._name.bindTo(ps, index);
 			return index;
 		}
 		public Member deserialize(ResultSet rs) throws SQLException {
@@ -42,29 +40,25 @@ public class Member extends AbstractRow {
 	}
 
 	// for query
-	public final static LongPredicate<Member> id = new LongPredicate<Member>(TABLE_DEFINITION, "id");
-	public final static StringPredicate<Member> name = new StringPredicate<Member>(TABLE_DEFINITION, "name");
+	public final static LongType.Predicate<Member> id = new LongType.Predicate<Member>().init(TABLE_DEFINITION, "id");
+	public final static StringType.Predicate<Member> name = new StringType.Predicate<Member>().init(TABLE_DEFINITION, "name");
 
 	// for insert,update
-	Long _id_value;
-	boolean _id_isset;
-	String _name_value;
-	boolean _name_isset;
+	LongType _id = new LongType().init(0L);
+	StringType _name = new StringType().init("");
 	public Member setId(long id) {
-		_id_value = id;
-		_id_isset = true;
+		_id.set(id);
 		return this;
 	}
-	public Long getId() {
-		return _id_value;
+	public long getId() {
+		return _id.get();
 	}
 	public Member setName(String name) {
-		_name_value = name;
-		_name_isset = true;
+		_name.set(name);
 		return this;
 	}
 	public String getName() {
-		return _name_value;
+		return _name.get();
 	}
 
 }

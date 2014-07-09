@@ -7,8 +7,12 @@ import java.util.ArrayList;
 
 public class Condition<Row extends AbstractRow> {
 
-	static interface Parameter {
+	public static interface Parameter {
 		public void bindTo(PreparedStatement ps, int parameterIndex) throws SQLException;
+	}
+
+	public static abstract class OrderBy {
+		abstract String toOrderBySQL();
 	}
 
 	final TableDefinition<Row> tableDefinition;
@@ -18,9 +22,12 @@ public class Condition<Row extends AbstractRow> {
 	long limitOffset = 0;
 	long limitCount = -1;
 
-	Condition(TableDefinition<Row> tableDefinition, String term) {
+	public Condition(TableDefinition<Row> tableDefinition, String term, Parameter... params) {
 		this.tableDefinition = tableDefinition;
 		this.term = term;
+		for (Parameter param : params) {
+			this.params.add(param);
+		}
 	}
 
 	public Condition<Row> and(Condition<Row> x) {
@@ -35,10 +42,9 @@ public class Condition<Row extends AbstractRow> {
 		return this;
 	}
 
-	@SuppressWarnings("varargs")
-	public Condition<Row> orderBy(Predicate<Row>... predicates) {
-		for (Predicate<Row> predicate : predicates) {
-			orderBy.add(predicate.fieldName + (predicate.orderIsAscending() ? " ASC" : " DESC"));
+	public Condition<Row> orderBy(OrderBy... orders) {
+		for (OrderBy order : orders) {
+			orderBy.add(order.toOrderBySQL());
 		}
 		return this;
 	}

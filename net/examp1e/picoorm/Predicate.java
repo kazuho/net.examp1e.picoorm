@@ -1,40 +1,32 @@
 package net.examp1e.picoorm;
 
-public abstract class Predicate<Row extends AbstractRow> {
-	
-	public static class OrderPredicate<Row extends AbstractRow> extends Predicate<Row> {
-		boolean isAsc = true;
-		OrderPredicate(Predicate<Row> src, boolean isAsc) {
-			super(src);
+public abstract class Predicate<Row extends AbstractRow> extends Condition.OrderBy {
+
+	public static class OrderPredicate<Row extends AbstractRow> extends Condition.OrderBy {
+		Predicate<Row> predicate;
+		boolean isAsc;
+		OrderPredicate(Predicate<Row> predicate, boolean isAsc) {
+			this.predicate = predicate;
 			this.isAsc = isAsc;
 		}
 		@Override
-		boolean orderIsAscending() {
-			return this.isAsc;
+		String toOrderBySQL() {
+			return this.predicate.fieldName + (isAsc ? " ASC" : " DESC");
 		}
 	}
 
-	final TableDefinition<Row> tableDefinition;
-	String fieldName;
+	protected TableDefinition<Row> tableDefinition;
+	protected String fieldName;
+	public final OrderPredicate<Row> asc = new OrderPredicate<Row>(this, true);
+	public final OrderPredicate<Row> desc = new OrderPredicate<Row>(this, false);
 
-	public final OrderPredicate<Row> asc;
-	public final OrderPredicate<Row> desc;
-
-	protected Predicate(TableDefinition<Row> tableDefinition, String fieldName) {
+	protected void _init(TableDefinition<Row> tableDefinition, String fieldName) {
 		this.tableDefinition = tableDefinition;
 		this.fieldName = fieldName;
-		this.asc = new OrderPredicate<Row>(this, true);
-		this.desc = new OrderPredicate<Row>(this, false);
 	}
 
-	protected Predicate(Predicate<Row> src) {
-		this.tableDefinition = src.tableDefinition;
-		this.fieldName = src.fieldName;
-		this.asc = src.asc;
-		this.desc = src.desc;
-	}
-
-	boolean orderIsAscending() {
-		return true;
+	@Override
+	String toOrderBySQL() {
+		return this.asc.toOrderBySQL();
 	}
 }
