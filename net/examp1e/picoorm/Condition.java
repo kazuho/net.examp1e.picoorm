@@ -29,6 +29,7 @@ public class Condition<Row extends AbstractRow> {
 		return this;
 	}
 
+	@SuppressWarnings("varargs")
 	public Condition<Row> orderBy(Predicate<Row>... predicates) {
 		for (Predicate<Row> predicate : predicates) {
 			orderBy.add(predicate.fieldName);
