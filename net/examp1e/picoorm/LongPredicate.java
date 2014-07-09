@@ -7,14 +7,14 @@ public class LongPredicate<Row> {
 		this.tableDefinition = tableDefinition;
 		this.fieldName = fieldName;
 	}
-	public Condition<Row> is(int x) {
+	public Condition<Row> is(long x) {
 		Condition<Row> c = new Condition<Row>(this.tableDefinition, this.fieldName + "=?");
-		c.params.add(Integer.toString(x));
+		c.params.add(Long.toString(x));
 		return c;
 	}
-	public Condition<Row> lessThan(int x) {
+	public Condition<Row> lessThan(long x) {
 		Condition<Row> c = new Condition<Row>(this.tableDefinition, this.fieldName + "<?");
-		c.params.add(Integer.toString(x));
+		c.params.add(Long.toString(x));
 		return c;
 	}
 }
