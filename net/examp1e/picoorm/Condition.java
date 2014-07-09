@@ -4,35 +4,39 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class Condition<Row extends AbstractRow> {
-	final TableDefinition<Row> tableDefinition;
+public class Condition<Row extends AbstractRow, RowOrder> {
+	final TableDefinition<Row, RowOrder> tableDefinition;
 	String term;
 	ArrayList<String> params = new ArrayList<String>();
+	ArrayList<String> orders = new ArrayList<String>();
 	long limitOffset = 0;
 	long limitCount = -1;
 
-	Condition(TableDefinition<Row> tableDefinition, String term) {
+	public RowOrder orderBy;
+
+	Condition(TableDefinition<Row, RowOrder> tableDefinition, String term) {
 		this.tableDefinition = tableDefinition;
 		this.term = term;
+		orderBy = tableDefinition.createRowOrder(this); 
 	}
 
-	public Condition<Row> and(Condition<Row> x) {
+	public Condition<Row, RowOrder> and(Condition<Row, RowOrder> x) {
 		term = "(" + term + ") AND (" + x.term + ")";
 		params.addAll(x.params);
 		return this;
 	}
 
-	public Condition<Row> or(Condition<Row> x) {
+	public Condition<Row, RowOrder> or(Condition<Row, RowOrder> x) {
 		term = "(" + term + ") OR (" + x.term + ")";
 		params.addAll(x.params);
 		return this;
 	}
 
-	public Condition<Row> limit(long count) {
+	public Condition<Row, RowOrder> limit(long count) {
 		return this.limit(-1, count);
 	}
 
-	public Condition<Row> limit(long offset, long count) {
+	public Condition<Row, RowOrder> limit(long offset, long count) {
 		this.limitOffset = offset;
 		this.limitCount = count;
 		return this;

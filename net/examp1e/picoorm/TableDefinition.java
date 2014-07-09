@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 
-public abstract class TableDefinition<Row extends AbstractRow> {
+public abstract class TableDefinition<Row extends AbstractRow, RowOrder> {
 
 	public abstract String getTableName();
 	
@@ -16,8 +16,10 @@ public abstract class TableDefinition<Row extends AbstractRow> {
 	public abstract int bind(Row row, PreparedStatement ps, int index) throws SQLException;
 	
 	public abstract Row deserialize(ResultSet rs) throws SQLException;
-	
-	public ArrayList<Row> search(Connection conn, Condition<Row> cond) throws SQLException {
+
+	public abstract RowOrder createRowOrder(Condition<Row, RowOrder> cond);
+
+	public ArrayList<Row> search(Connection conn, Condition<Row, RowOrder> cond) throws SQLException {
 		String sql = "SELECT " + join(getColumnNames(null)) + " FROM " + getTableName() + _buildWhere(cond);
 		PreparedStatement ps = conn.prepareStatement(sql);
 		this._bindWhere(cond,  ps, 1);
@@ -44,7 +46,7 @@ public abstract class TableDefinition<Row extends AbstractRow> {
 		ps.execute();
 	}
 
-	public void update(Connection conn, Condition<Row> cond, Row changes) throws SQLException {
+	public void update(Connection conn, Condition<Row, RowOrder> cond, Row changes) throws SQLException {
 		ArrayList<String> columnsToChange = getColumnNames(changes);
 		if (columnsToChange.size() == 0)
 			return;
@@ -63,15 +65,18 @@ public abstract class TableDefinition<Row extends AbstractRow> {
 		ps.execute();
 	}
 
-	private String _buildWhere(Condition<Row> cond) {
+	private String _buildWhere(Condition<Row, RowOrder> cond) {
 		String clause = " WHERE " + cond.term;
+		if (cond.orders.size() != 0) {
+			clause += " ORDER BY " + join(cond.orders);
+		}
 		if (cond.limitCount != -1) {
 			clause += " LIMIT " + Long.toString(cond.limitOffset) + "," + Long.toString(cond.limitCount);
 		}
 		return clause;
 	}
 
-	private int _bindWhere(Condition<Row> cond, PreparedStatement ps, int index) throws SQLException {
+	private int _bindWhere(Condition<Row, RowOrder> cond, PreparedStatement ps, int index) throws SQLException {
 		for (String value : cond.params) {
 			ps.setString(index++, value);
 		}

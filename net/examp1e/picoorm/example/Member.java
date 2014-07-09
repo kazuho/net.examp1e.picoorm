@@ -9,10 +9,19 @@ import net.examp1e.picoorm.*;
 
 // this class definition should be automatically generated from the DDL
 public class Member extends AbstractRow {
-	
+
+	public static class RowOrder {
+		OrderPredicate<Member, RowOrder> id;
+		OrderPredicate<Member, RowOrder> name;
+		RowOrder(Condition<Member, RowOrder> cond) {
+			id = new OrderPredicate<Member, RowOrder>(cond, "id");
+			name = new OrderPredicate<Member, RowOrder>(cond, "order");
+		}
+	}
+
 	// serdes
 	public static final String TABLE_NAME = "member";
-	static final TableDefinition<Member> TABLE_DEFINITION = new TableDefinition<Member>() {
+	static final TableDefinition<Member, RowOrder> TABLE_DEFINITION = new TableDefinition<Member, RowOrder>() {
 		public String getTableName() {
 			return TABLE_NAME;
 		}
@@ -36,14 +45,17 @@ public class Member extends AbstractRow {
 				.setId(rs.getLong("id"))
 				.setName(rs.getString("name"));
 		}
+		public RowOrder createRowOrder(Condition<Member, RowOrder> cond) {
+			return new RowOrder(cond);
+		}
 	};
-	protected TableDefinition<Member> _getTableDefinition() {
+	protected TableDefinition<Member, RowOrder> _getTableDefinition() {
 		return TABLE_DEFINITION;
 	}
 
 	// for query
-	public final static LongPredicate<Member> id = new LongPredicate<Member>(TABLE_DEFINITION, "id");
-	public final static StringPredicate<Member> name = new StringPredicate<Member>(TABLE_DEFINITION, "name");
+	public final static LongPredicate<Member, RowOrder> id = new LongPredicate<Member, RowOrder>(TABLE_DEFINITION, "id");
+	public final static StringPredicate<Member, RowOrder> name = new StringPredicate<Member, RowOrder>(TABLE_DEFINITION, "name");
 
 	// for insert,update
 	Long _id_value;
