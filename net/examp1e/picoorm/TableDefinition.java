@@ -65,6 +65,9 @@ public abstract class TableDefinition<Row extends AbstractRow> {
 
 	private String _buildWhere(Condition<Row> cond) {
 		String clause = " WHERE " + cond.term;
+		if (cond.orderBy.size() != 0) {
+			clause += " ORDER BY " + join(cond.orderBy);
+		}
 		if (cond.limitCount != -1) {
 			clause += " LIMIT " + Long.toString(cond.limitOffset) + "," + Long.toString(cond.limitCount);
 		}

@@ -1,11 +1,8 @@
 package net.examp1e.picoorm;
 
-public class LongPredicate<Row extends AbstractRow> {
-	final TableDefinition<Row> tableDefinition;
-	String fieldName;
+public class LongPredicate<Row extends AbstractRow> extends Predicate<Row> {
 	public LongPredicate(TableDefinition<Row> tableDefinition, String fieldName) {
-		this.tableDefinition = tableDefinition;
-		this.fieldName = fieldName;
+		super(tableDefinition, fieldName);
 	}
 	public Condition<Row> is(long x) {
 		Condition<Row> c = new Condition<Row>(this.tableDefinition, this.fieldName + "=?");

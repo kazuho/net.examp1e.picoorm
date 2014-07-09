@@ -8,6 +8,7 @@ public class Condition<Row extends AbstractRow> {
 	final TableDefinition<Row> tableDefinition;
 	String term;
 	ArrayList<String> params = new ArrayList<String>();
+	ArrayList<String> orderBy = new ArrayList<String>();
 	long limitOffset = 0;
 	long limitCount = -1;
 
@@ -25,6 +26,13 @@ public class Condition<Row extends AbstractRow> {
 	public Condition<Row> or(Condition<Row> x) {
 		term = "(" + term + ") OR (" + x.term + ")";
 		params.addAll(x.params);
+		return this;
+	}
+
+	public Condition<Row> orderBy(Predicate<Row>... predicates) {
+		for (Predicate<Row> predicate : predicates) {
+			orderBy.add(predicate.fieldName);
+		}
 		return this;
 	}
 
