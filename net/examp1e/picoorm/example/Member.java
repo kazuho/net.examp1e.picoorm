@@ -3,9 +3,11 @@ package net.examp1e.picoorm.example;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import net.examp1e.picoorm.*;
 
+// this class definition should be automatically generated from the DDL
 public class Member extends AbstractRow {
 	
 	// serdes
@@ -14,12 +16,20 @@ public class Member extends AbstractRow {
 		public String getTableName() {
 			return TABLE_NAME;
 		}
-		public String[] getColumnNames() {
-			return new String[] { "id", "name" };
+		public ArrayList<String> getColumnNames(Member row) {
+			ArrayList<String> names = new ArrayList<String>();
+			if (row == null || row._id_isset)
+				names.add("id");
+			if (row == null || row._name_isset)
+				names.add("name");
+			return names;
 		}
-		public void bind(Member row, PreparedStatement ps) throws SQLException {
-			setLong(ps, 1, row._id);
-			setString(ps, 2, row._name);
+		public int bind(Member row, PreparedStatement ps, int index) throws SQLException {
+			if (row._id_isset)
+				setLong(ps, index++, row._id_value);
+			if (row._name_isset)
+				setString(ps, index++, row._name_value);
+			return index;
 		}
 		public Member deserialize(ResultSet rs) throws SQLException {
 			return new Member()
@@ -36,21 +46,25 @@ public class Member extends AbstractRow {
 	public final static StringPredicate<Member> name = new StringPredicate<Member>(TABLE_DEFINITION, "name");
 
 	// for insert,update
-	Long _id;
-	String _name;
+	Long _id_value;
+	boolean _id_isset;
+	String _name_value;
+	boolean _name_isset;
 	public Member setId(long id) {
-		_id = id;
+		_id_value = id;
+		_id_isset = true;
 		return this;
 	}
-	public long getId() {
-		return _id;
+	public Long getId() {
+		return _id_value;
 	}
 	public Member setName(String name) {
-		_name = name;
+		_name_value = name;
+		_name_isset = true;
 		return this;
 	}
 	public String getName() {
-		return _name;
+		return _name_value;
 	}
 
 }

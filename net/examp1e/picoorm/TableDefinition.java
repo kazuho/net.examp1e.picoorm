@@ -6,28 +6,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public abstract class TableDefinition<Row> {
 
 	public abstract String getTableName();
 	
-	public abstract String[] getColumnNames();
+	public abstract ArrayList<String> getColumnNames(Row row);
 	
-	public abstract void bind(Row row, PreparedStatement ps) throws SQLException;
+	public abstract int bind(Row row, PreparedStatement ps, int index) throws SQLException;
 	
 	public abstract Row deserialize(ResultSet rs) throws SQLException;
 	
 	public ArrayList<Row> search(Connection conn, Condition<Row> cond) throws SQLException {
-		// prepare the statement
-		PreparedStatement ps = conn.prepareStatement("SELECT " + join(getColumnNames()) + " FROM " + getTableName() + " WHERE " + cond.getTerm());
-		// bind params
-		int parameterIndex = 1;
-		Iterator<String> paramsIter = cond.getParams().iterator();
-		while (paramsIter.hasNext()) {
-			ps.setString(parameterIndex++, paramsIter.next());
-		}
-		// execute query
+		PreparedStatement ps = conn.prepareStatement("SELECT " + join(getColumnNames(null)) + " FROM " + getTableName() + " WHERE " + cond.getTerm());
+		this._bindWhere(cond,  ps, 1);
 		ResultSet rs = ps.executeQuery();
 		ArrayList<Row> ret = new ArrayList<Row>();
 		while (rs.next()) {
@@ -37,18 +29,44 @@ public abstract class TableDefinition<Row> {
 	}
 
 	public void insert(Connection conn, Row row) throws SQLException {
-		String[] names = getColumnNames();
+		ArrayList<String> names = getColumnNames(row);
 
 		String sql = "INSERT INTO " + getTableName() + " (" + join(names) + ") VALUES (";
-		for (int i = 0; i != names.length; ++i) {
+		for (int i = 0; i != names.size(); ++i) {
 			if (i != 0)
 				sql += ",";
 			sql += "?";
 		}
 		sql += ")";
 		PreparedStatement ps = conn.prepareStatement(sql);
-		bind(row, ps);
+		bind(row, ps, 1);
 		ps.execute();
+	}
+
+	public void update(Connection conn, Condition<Row> cond, Row changes) throws SQLException {
+		ArrayList<String> columnsToChange = getColumnNames(changes);
+		if (columnsToChange.size() == 0)
+			return;
+
+		String sql = "UPDATE " + getTableName() + " SET ";
+		for (String column : columnsToChange) {
+			sql += column + "=?";
+		}
+		sql += " WHERE " + cond.term;
+
+		PreparedStatement ps = conn.prepareStatement(sql);
+		int parameterIndex = 1;
+		parameterIndex = bind(changes, ps, parameterIndex);
+		parameterIndex = _bindWhere(cond, ps, parameterIndex);
+
+		ps.execute();
+	}
+
+	private int _bindWhere(Condition<Row> cond, PreparedStatement ps, int index) throws SQLException {
+		for (String value : cond.getParams()) {
+			ps.setString(index++, value);
+		}
+		return index;
 	}
 
 	public static void setLong(PreparedStatement ps, int parameterIndex, Long value) throws SQLException {
@@ -67,12 +85,12 @@ public abstract class TableDefinition<Row> {
 		}
 	}
 
-	public static String join(String[] list) {
+	public static String join(ArrayList<String> list) {
 		String s = "";
-		for (int i = 0; i != list.length; ++i) {
-			if (i != 0)
+		for (String e : list) {
+			if (s.length() != 0)
 				s += ",";
-			s += list[i];
+			s += e;
 		}
 		return s;
 	}

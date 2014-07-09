@@ -3,7 +3,6 @@ package net.examp1e.picoorm.example;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
-import java.util.Iterator;
 
 public class Main {
 
@@ -17,13 +16,21 @@ public class Main {
 			stmt.executeUpdate("create table member (id integer primary key,name string not null)");
 			stmt.executeUpdate("create unique index name on member (name)");
 
+			// INSERT INTO member (name) VALUES (?)
 			new Member().setName("yappo").insert(conn);
 			new Member().setName("tokuhirom").insert(conn);
 			new Member().setName("kazuho").insert(conn);
 
-			Iterator<Member> iter = Member.name.is("yappo").or(Member.name.is("tokuhirom")).search(conn).iterator();
-			while (iter.hasNext()) {
-				Member m = iter.next();
+			// SELECT FROM member WHERE (name=?) OR (name=?)
+			for (Member m : Member.name.is("yappo").or(Member.name.is("tokuhirom")).search(conn)) {
+				System.out.println(Long.toString(m.getId()) + ":" + m.getName());
+			}
+
+			// UPDATE member SET name=? WHERE name=?
+			Member.name.is("yappo").update(conn, new Member().setName("seiitaishogun"));
+
+			// SELECT FROM member WHERE id<?
+			for (Member m: Member.id.lessThan(1000).search(conn)) {
 				System.out.println(Long.toString(m.getId()) + ":" + m.getName());
 			}
 

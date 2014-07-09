@@ -27,6 +27,10 @@ public class Condition<Row> {
 		return tableDefinition.search(conn,  this);
 	}
 
+	public void update(Connection conn, Row changes) throws SQLException {
+		tableDefinition.update(conn, this, changes);
+	}
+
 	String getTerm() {
 		return term;
 	}
