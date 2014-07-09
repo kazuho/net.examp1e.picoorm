@@ -18,7 +18,8 @@ public abstract class TableDefinition<Row extends AbstractRow> {
 	public abstract Row deserialize(ResultSet rs) throws SQLException;
 	
 	public ArrayList<Row> search(Connection conn, Condition<Row> cond) throws SQLException {
-		PreparedStatement ps = conn.prepareStatement("SELECT " + join(getColumnNames(null)) + " FROM " + getTableName() + " WHERE " + cond.getTerm());
+		String sql = "SELECT " + join(getColumnNames(null)) + " FROM " + getTableName() + _buildWhere(cond);
+		PreparedStatement ps = conn.prepareStatement(sql);
 		this._bindWhere(cond,  ps, 1);
 		ResultSet rs = ps.executeQuery();
 		ArrayList<Row> ret = new ArrayList<Row>();
@@ -52,7 +53,7 @@ public abstract class TableDefinition<Row extends AbstractRow> {
 		for (String column : columnsToChange) {
 			sql += column + "=?";
 		}
-		sql += " WHERE " + cond.term;
+		sql += _buildWhere(cond);
 
 		PreparedStatement ps = conn.prepareStatement(sql);
 		int parameterIndex = 1;
@@ -62,8 +63,16 @@ public abstract class TableDefinition<Row extends AbstractRow> {
 		ps.execute();
 	}
 
+	private String _buildWhere(Condition<Row> cond) {
+		String clause = " WHERE " + cond.term;
+		if (cond.limitCount != -1) {
+			clause += " LIMIT " + Long.toString(cond.limitOffset) + "," + Long.toString(cond.limitCount);
+		}
+		return clause;
+	}
+
 	private int _bindWhere(Condition<Row> cond, PreparedStatement ps, int index) throws SQLException {
-		for (String value : cond.getParams()) {
+		for (String value : cond.params) {
 			ps.setString(index++, value);
 		}
 		return index;
