@@ -24,6 +24,9 @@ public class StringType extends AbstractType<StringType, String> {
 	}
 
 	public static class Predicate<Row extends AbstractRow> extends AbstractType.Predicate<Predicate<Row>, Row, String> {
+		public Condition<Row> like(String x) {
+			return _buildBinaryOp(" LIKE ", x);
+		}
 		@Override
 		protected Parameter<String> createParameter(String value) {
 			return new Parameter<String>(value) {

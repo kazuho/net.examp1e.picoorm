@@ -76,7 +76,7 @@ public abstract class AbstractType<ThisType, ValueType> {
 		public Condition<Row> between(ValueType x, ValueType y) {
 			return new Condition<Row>(this.tableDefinition, this.fieldName + " BETWEEN ? AND ?", createParameter(x), createParameter(y));
 		}
-		private Condition<Row> _buildBinaryOp(String op, ValueType value) {
+		protected Condition<Row> _buildBinaryOp(String op, ValueType value) {
 			return new Condition<Row>(this.tableDefinition, this.fieldName + op + "?", createParameter(value));
 		}
 		protected abstract Parameter<ValueType> createParameter(ValueType x);
