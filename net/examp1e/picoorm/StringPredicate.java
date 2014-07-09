@@ -1,14 +1,14 @@
 package net.examp1e.picoorm;
 
-public class StringPredicate<Table> {
-	final TableDefinition<Table> tableDefinition;
+public class StringPredicate<Row> {
+	final TableDefinition<Row> tableDefinition;
 	String fieldName;
-	public StringPredicate(TableDefinition<Table> tableDefinition, String fieldName) {
+	public StringPredicate(TableDefinition<Row> tableDefinition, String fieldName) {
 		this.tableDefinition = tableDefinition;
 		this.fieldName = fieldName;
 	}
-	public Condition<Table> is(String x) {
-		Condition<Table> c = new Condition<Table>(this.tableDefinition, this.fieldName + "=?");
+	public Condition<Row> is(String x) {
+		Condition<Row> c = new Condition<Row>(this.tableDefinition, this.fieldName + "=?");
 		c.params.add(x);
 		return c;
 	}

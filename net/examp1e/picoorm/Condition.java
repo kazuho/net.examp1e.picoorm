@@ -4,26 +4,26 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class Condition<Table> {
-	final TableDefinition<Table> tableDefinition;
+public class Condition<Row> {
+	final TableDefinition<Row> tableDefinition;
 	String term;
 	ArrayList<String> params = new ArrayList<String>();
 
-	Condition(TableDefinition<Table> tableDefinition, String term) {
+	Condition(TableDefinition<Row> tableDefinition, String term) {
 		this.tableDefinition = tableDefinition;
 		this.term = term;
 	}
-	public Condition<Table> and(Condition<Table> x) {
+	public Condition<Row> and(Condition<Row> x) {
 		term = "(" + term + ") AND (" + x.term + ")";
 		params.addAll(x.params);
 		return this;
 	}
-	public Condition<Table> or(Condition<Table> x) {
+	public Condition<Row> or(Condition<Row> x) {
 		term = "(" + term + ") OR (" + x.term + ")";
 		params.addAll(x.params);
 		return this;
 	}
-	public ArrayList<Table> search(Connection conn) throws SQLException {
+	public ArrayList<Row> search(Connection conn) throws SQLException {
 		return tableDefinition.search(conn,  this);
 	}
 
