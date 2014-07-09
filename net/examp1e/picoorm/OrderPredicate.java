@@ -9,4 +9,8 @@ public class OrderPredicate<Row extends AbstractRow> extends Predicate<Row> {
 		this.isAsc = isAsc;
 	}
 
+	@Override
+	boolean orderIsAscending() {
+		return this.isAsc;
+	}
 }

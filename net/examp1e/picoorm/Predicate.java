@@ -23,4 +23,7 @@ public abstract class Predicate<Row extends AbstractRow> {
 		return new OrderPredicate<Row>(this, false);
 	}
 
+	boolean orderIsAscending() {
+		return true;
+	}
 }
