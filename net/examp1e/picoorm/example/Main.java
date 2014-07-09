@@ -29,8 +29,8 @@ public class Main {
 			// UPDATE member SET name=? WHERE name=?
 			Member.name.is("yappo").update(conn, new Member().setName("seiitaishogun"));
 
-			// SELECT FROM member WHERE id<?
-			for (Member m: Member.id.lessThan(1000L).limit(1).search(conn)) {
+			// SELECT FROM member WHERE id BETWEEN ? AND ?
+			for (Member m: Member.id.between(1L, 1000L).limit(1).search(conn)) {
 				System.out.println(Long.toString(m.getId()) + ":" + m.getName());
 			}
 
