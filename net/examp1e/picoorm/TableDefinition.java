@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 
-public abstract class TableDefinition<Row> {
+public abstract class TableDefinition<Row extends AbstractRow> {
 
 	public abstract String getTableName();
 	

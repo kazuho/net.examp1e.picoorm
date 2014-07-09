@@ -1,6 +1,6 @@
 package net.examp1e.picoorm;
 
-public class StringPredicate<Row> {
+public class StringPredicate<Row extends AbstractRow> {
 	final TableDefinition<Row> tableDefinition;
 	String fieldName;
 	public StringPredicate(TableDefinition<Row> tableDefinition, String fieldName) {

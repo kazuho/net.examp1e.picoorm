@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class Condition<Row> {
+public class Condition<Row extends AbstractRow> {
 	final TableDefinition<Row> tableDefinition;
 	String term;
 	ArrayList<String> params = new ArrayList<String>();
