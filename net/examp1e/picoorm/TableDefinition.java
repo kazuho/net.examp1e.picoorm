@@ -75,8 +75,8 @@ public abstract class TableDefinition<Row extends AbstractRow> {
 	}
 
 	private int _bindWhere(Condition<Row> cond, PreparedStatement ps, int index) throws SQLException {
-		for (String value : cond.params) {
-			ps.setString(index++, value);
+		for (Condition.Parameter p : cond.params) {
+			p.bindTo(ps,  index++);
 		}
 		return index;
 	}

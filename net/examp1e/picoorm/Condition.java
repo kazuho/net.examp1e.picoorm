@@ -1,13 +1,19 @@
 package net.examp1e.picoorm;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class Condition<Row extends AbstractRow> {
+
+	static interface Parameter {
+		public void bindTo(PreparedStatement ps, int parameterIndex) throws SQLException;
+	}
+
 	final TableDefinition<Row> tableDefinition;
 	String term;
-	ArrayList<String> params = new ArrayList<String>();
+	ArrayList<Parameter> params = new ArrayList<Parameter>();
 	ArrayList<String> orderBy = new ArrayList<String>();
 	long limitOffset = 0;
 	long limitCount = -1;
