@@ -1,39 +1,31 @@
 package net.examp1e.picoorm.types;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
 import net.examp1e.picoorm.*;
 
-public class StringType extends AbstractType<StringType, String> {
-
-	final static Binder<String> BINDER = new Binder<String>() {
-		@Override
-		public void bind(PreparedStatement ps, int parameterIndex, String value) throws SQLException {
-			if (value != null)
-				ps.setString(parameterIndex, value);
-			else
-				ps.setNull(parameterIndex, Types.VARCHAR);
-		}
-	};
+public class StringType extends AnyTypeImpl<StringType, String> {
 
 	@Override
-	protected Binder<String> getBinder() {
-		return BINDER;
+	public void bind(PreparedStatement ps, int parameterIndex) throws SQLException {
+		if (value != null)
+			ps.setString(parameterIndex, value);
+		else
+			ps.setNull(parameterIndex, Types.VARCHAR);
 	}
 
-	public static class Predicate<Row extends AbstractRow> extends AbstractType.Predicate<Predicate<Row>, Row, String> {
-		public Condition<Row> like(String x) {
-			return _buildBinaryOp(" LIKE ", x);
-		}
+	@Override
+	public void unbind(ResultSet rs, int parameterIndex) throws SQLException {
+		value = rs.getString(parameterIndex);
+	}
+
+	public static class Predicate<Row extends AbstractRow> extends AnyTypeImpl.Predicate<Predicate<Row>, Row, String> {
 		@Override
-		protected Parameter<String> createParameter(String value) {
-			return new Parameter<String>(value) {
-				protected Binder<String> getBinder() {
-					return BINDER;
-				}
-			};
+		protected StringType createParameter(String value) {
+			return new StringType().init(value);
 		}
 	}
 

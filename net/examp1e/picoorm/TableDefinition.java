@@ -4,35 +4,48 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
+
+import net.examp1e.picoorm.types.AnyType;
 
 public abstract class TableDefinition<Row extends AbstractRow> {
 
-	public abstract String getTableName();
+	public final String TABLE_NAME;
+	private ArrayList<Predicate<Row>> columnDefinitions = new ArrayList<Predicate<Row>>();
+
+	protected TableDefinition(String tableName) {
+		TABLE_NAME = tableName;
+	}
 	
-	public abstract ArrayList<String> getColumnNames(Row row);
-	
-	public abstract int bind(Row row, PreparedStatement ps, int index) throws SQLException;
-	
-	public abstract Row deserialize(ResultSet rs) throws SQLException;
-	
+	public abstract Row createRow();
+
+	public abstract AnyType[] getColumns(Row row);
+
 	public ArrayList<Row> search(Connection conn, Condition<Row> cond) throws SQLException {
-		String sql = "SELECT " + join(getColumnNames(null)) + " FROM " + getTableName() + _buildWhere(cond);
+		String sql = "SELECT " + _join(_getColumnNames(null)) + " FROM " + TABLE_NAME + _buildWhere(cond);
 		PreparedStatement ps = conn.prepareStatement(sql);
 		this._bindWhere(cond,  ps, 1);
 		ResultSet rs = ps.executeQuery();
 		ArrayList<Row> ret = new ArrayList<Row>();
 		while (rs.next()) {
-			ret.add(deserialize(rs));
+			Row row = createRow();
+			AnyType[] columns = getColumns(row);
+			for (int i = 0; i != columns.length; ++i) {
+				columns[i].unbind(rs,  i + 1);
+			}
+			ret.add(row);
 		}
 		return ret;
 	}
 
-	public void insert(Connection conn, Row row) throws SQLException {
-		ArrayList<String> names = getColumnNames(row);
+	void addColumnDefinition(Predicate<Row> columnDefinition) {
+		this.columnDefinitions.add(columnDefinition);
+	}
 
-		String sql = "INSERT INTO " + getTableName() + " (" + join(names) + ") VALUES (";
+	public void insert(Connection conn, Row row) throws SQLException {
+		ArrayList<String> names = _getColumnNames(row);
+
+		String sql = "INSERT INTO " + TABLE_NAME + " (" + _join(names) + ") VALUES (";
 		for (int i = 0; i != names.size(); ++i) {
 			if (i != 0)
 				sql += ",";
@@ -40,16 +53,16 @@ public abstract class TableDefinition<Row extends AbstractRow> {
 		}
 		sql += ")";
 		PreparedStatement ps = conn.prepareStatement(sql);
-		bind(row, ps, 1);
+		_bindColumnsBeingSet(row, ps, 1);
 		ps.execute();
 	}
 
 	public void update(Connection conn, Condition<Row> cond, Row changes) throws SQLException {
-		ArrayList<String> columnsToChange = getColumnNames(changes);
+		ArrayList<String> columnsToChange = _getColumnNames(changes);
 		if (columnsToChange.size() == 0)
 			return;
 
-		String sql = "UPDATE " + getTableName() + " SET ";
+		String sql = "UPDATE " + TABLE_NAME + " SET ";
 		for (String column : columnsToChange) {
 			sql += column + "=?";
 		}
@@ -57,16 +70,42 @@ public abstract class TableDefinition<Row extends AbstractRow> {
 
 		PreparedStatement ps = conn.prepareStatement(sql);
 		int parameterIndex = 1;
-		parameterIndex = bind(changes, ps, parameterIndex);
+		parameterIndex = _bindColumnsBeingSet(changes, ps, parameterIndex);
 		parameterIndex = _bindWhere(cond, ps, parameterIndex);
 
 		ps.execute();
 	}
 
+	private ArrayList<String> _getColumnNames(Row row) {
+		ArrayList<String> columnNames = new ArrayList<String>();
+		if (row == null) {
+			for (Predicate<Row> c : columnDefinitions)
+				columnNames.add(c.fieldName);
+		} else {
+			// only name the columns that are being set
+			AnyType[] columns = getColumns(row);
+			int columnIndex = 0;
+			for (Predicate<Row> c : columnDefinitions) {
+				if (columns[columnIndex++].isSet())
+					columnNames.add(c.fieldName);
+			}
+		}
+		return columnNames;
+	}
+
+	private int _bindColumnsBeingSet(Row row, PreparedStatement ps, int parameterIndex) throws SQLException {
+		AnyType[] columns = getColumns(row);
+		for (AnyType column : columns) {
+			if (column.isSet())
+				column.bind(ps, parameterIndex++);
+		}
+		return parameterIndex;
+	}
+
 	private String _buildWhere(Condition<Row> cond) {
 		String clause = " WHERE " + cond.term;
 		if (cond.orderBy.size() != 0) {
-			clause += " ORDER BY " + join(cond.orderBy);
+			clause += " ORDER BY " + _join(cond.orderBy);
 		}
 		if (cond.limitCount != -1) {
 			clause += " LIMIT " + Long.toString(cond.limitOffset) + "," + Long.toString(cond.limitCount);
@@ -75,29 +114,13 @@ public abstract class TableDefinition<Row extends AbstractRow> {
 	}
 
 	private int _bindWhere(Condition<Row> cond, PreparedStatement ps, int index) throws SQLException {
-		for (Condition.Parameter p : cond.params) {
-			p.bindTo(ps,  index++);
+		for (AnyType p : cond.params) {
+			p.bind(ps,  index++);
 		}
 		return index;
 	}
 
-	public static void setLong(PreparedStatement ps, int parameterIndex, Long value) throws SQLException {
-		if (value != null) {
-			ps.setLong(parameterIndex, value);
-		} else {
-			ps.setNull(parameterIndex, Types.BIGINT);
-		}
-	}
-
-	public static void setString(PreparedStatement ps, int parameterIndex, String value) throws SQLException {
-		if (value != null) {
-			ps.setString(parameterIndex, value);
-		} else {
-			ps.setNull(parameterIndex, Types.VARCHAR);
-		}
-	}
-
-	public static String join(ArrayList<String> list) {
+	private static String _join(ArrayList<String> list) {
 		String s = "";
 		for (String e : list) {
 			if (s.length() != 0)

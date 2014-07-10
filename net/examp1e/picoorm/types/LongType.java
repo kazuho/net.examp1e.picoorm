@@ -1,36 +1,33 @@
 package net.examp1e.picoorm.types;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
 import net.examp1e.picoorm.*;
 
-public class LongType extends AbstractType<LongType, Long> {
-
-	final static Binder<Long> BINDER = new Binder<Long>() {
-		@Override
-		public void bind(PreparedStatement ps, int parameterIndex, Long value) throws SQLException {
-			if (value != null)
-				ps.setLong(parameterIndex, value);
-			else
-				ps.setNull(parameterIndex, Types.BIGINT);
-		}
-	};
+public class LongType extends AnyTypeImpl<LongType, Long> {
 
 	@Override
-	protected Binder<Long> getBinder() {
-		return BINDER;
+	public void bind(PreparedStatement ps, int parameterIndex) throws SQLException {
+		if (value != null)
+			ps.setLong(parameterIndex, value);
+		else
+			ps.setNull(parameterIndex, Types.BIGINT);
 	}
 
-	public static class Predicate<Row extends AbstractRow> extends AbstractType.Predicate<Predicate<Row>, Row, Long> {
+	@Override
+	public void unbind(ResultSet rs, int parameterIndex) throws SQLException {
+		value = rs.getLong(parameterIndex);
+		if (rs.wasNull())
+			value = null;
+	}
+
+	public static class Predicate<Row extends AbstractRow> extends AnyTypeImpl.Predicate<Predicate<Row>, Row, Long> {
 		@Override
-		protected Parameter<Long> createParameter(Long value) {
-			return new Parameter<Long>(value) {
-				protected Binder<Long> getBinder() {
-					return BINDER;
-				}
-			};
+		protected LongType createParameter(Long value) {
+			return new LongType().init(value);
 		}
 	}
 

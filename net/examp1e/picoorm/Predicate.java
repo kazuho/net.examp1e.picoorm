@@ -23,6 +23,7 @@ public abstract class Predicate<Row extends AbstractRow> extends Condition.Order
 	protected void _init(TableDefinition<Row> tableDefinition, String fieldName) {
 		this.tableDefinition = tableDefinition;
 		this.fieldName = fieldName;
+		tableDefinition.addColumnDefinition(this);
 	}
 
 	@Override

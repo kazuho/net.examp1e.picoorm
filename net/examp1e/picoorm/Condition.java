@@ -1,15 +1,12 @@
 package net.examp1e.picoorm;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class Condition<Row extends AbstractRow> {
+import net.examp1e.picoorm.types.AnyType;
 
-	public static interface Parameter {
-		public void bindTo(PreparedStatement ps, int parameterIndex) throws SQLException;
-	}
+public class Condition<Row extends AbstractRow> {
 
 	public static abstract class OrderBy {
 		abstract String toOrderBySQL();
@@ -17,15 +14,15 @@ public class Condition<Row extends AbstractRow> {
 
 	final TableDefinition<Row> tableDefinition;
 	String term;
-	ArrayList<Parameter> params = new ArrayList<Parameter>();
+	ArrayList<AnyType> params = new ArrayList<AnyType>();
 	ArrayList<String> orderBy = new ArrayList<String>();
 	long limitOffset = 0;
 	long limitCount = -1;
 
-	public Condition(TableDefinition<Row> tableDefinition, String term, Parameter... params) {
+	public Condition(TableDefinition<Row> tableDefinition, String term, AnyType... params) {
 		this.tableDefinition = tableDefinition;
 		this.term = term;
-		for (Parameter param : params) {
+		for (AnyType param : params) {
 			this.params.add(param);
 		}
 	}

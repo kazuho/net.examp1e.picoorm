@@ -1,19 +1,33 @@
 package net.examp1e.picoorm.types;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import net.examp1e.picoorm.*;
 
-public abstract class AbstractType<ThisType, ValueType> {
+public abstract class AnyType {
+	
+	public abstract boolean isSet();
 
-	public static interface Binder<T> {
-		void bind(PreparedStatement ps, int parameterIndex, T value) throws SQLException;
+	public abstract void bind(PreparedStatement ps, int parameterIndex) throws SQLException;
+
+	public abstract void unbind(ResultSet rs, int parameterIndex) throws SQLException;
+
+}
+
+abstract class AnyTypeImpl<ThisType, ValueType> extends AnyType {
+
+	boolean isSet = false;
+	ValueType value;
+
+	@SuppressWarnings("unchecked")
+	public ThisType init(ValueType defaultValue) {
+		this.value = defaultValue;
+		return (ThisType)this;
 	}
 
-	ValueType value;
-	boolean isSet;
-
+	@Override
 	public boolean isSet() {
 		return isSet;
 	}
@@ -25,31 +39,6 @@ public abstract class AbstractType<ThisType, ValueType> {
 	public void set(ValueType value) {
 		this.value = value;
 		this.isSet = true;
-	}
-
-	@SuppressWarnings("unchecked")
-	public ThisType init(ValueType defaultValue) {
-		this.value = defaultValue;
-		return (ThisType)this;
-	}
-
-	public int bindTo(PreparedStatement ps, int parameterIndex) throws SQLException {
-		if (isSet())
-			getBinder().bind(ps, parameterIndex, value);
-		return parameterIndex;
-	}
-
-	protected abstract Binder<ValueType> getBinder();
-
-	static abstract class Parameter<ValueType> implements Condition.Parameter {
-		ValueType value;
-		Parameter(ValueType value) {
-			this.value = value;
-		}
-		public void bindTo(PreparedStatement ps, int parameterIndex) throws SQLException {
-			getBinder().bind(ps, parameterIndex, value);
-		}
-		protected abstract Binder<ValueType> getBinder();
 	}
 
 	public static abstract class Predicate<ThisType, Row extends AbstractRow, ValueType> extends net.examp1e.picoorm.Predicate<Row> {
@@ -79,7 +68,7 @@ public abstract class AbstractType<ThisType, ValueType> {
 		protected Condition<Row> _buildBinaryOp(String op, ValueType value) {
 			return new Condition<Row>(this.tableDefinition, this.fieldName + op + "?", createParameter(value));
 		}
-		protected abstract Parameter<ValueType> createParameter(ValueType x);
+		protected abstract AnyType createParameter(ValueType x);
 	}
 
 }
