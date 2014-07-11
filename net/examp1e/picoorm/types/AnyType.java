@@ -16,23 +16,24 @@ public abstract class AnyType {
 
 	public static abstract class Predicate<Row extends AbstractRow> extends Condition.OrderBy {
 
-		public static class OrderPredicate<Row extends AbstractRow> extends Condition.OrderBy {
-			Predicate<Row> predicate;
-			boolean isAsc;
-			OrderPredicate(Predicate<Row> predicate, boolean isAsc) {
+		private static class OrderPredicate<Row extends AbstractRow> extends Condition.OrderBy {
+			private Predicate<Row> predicate;
+			OrderPredicate<Row> init(Predicate<Row> predicate) {
 				this.predicate = predicate;
-				this.isAsc = isAsc;
+				return this;
 			}
 			@Override
-			public String toOrderBySQL() {
-				return this.predicate.fieldName + (isAsc ? " ASC" : " DESC");
+			public String getFieldName() {
+				return this.predicate.getFieldName();
 			}
+		}
+		private static class DescendingOrderPredicate<Row extends AbstractRow> extends OrderPredicate<Row> implements Condition.OrderByIsDescending {
 		}
 
 		protected TableDefinition<Row> tableDefinition;
 		protected String fieldName;
-		public final OrderPredicate<Row> asc = new OrderPredicate<Row>(this, true);
-		public final OrderPredicate<Row> desc = new OrderPredicate<Row>(this, false);
+		public final OrderPredicate<Row> asc = new OrderPredicate<Row>().init(this);
+		public final OrderPredicate<Row> desc = new DescendingOrderPredicate<Row>().init(this);
 
 		protected void _init(TableDefinition<Row> tableDefinition, String fieldName) {
 			this.tableDefinition = tableDefinition;
@@ -40,13 +41,9 @@ public abstract class AnyType {
 			tableDefinition.addColumnDefinition(this);
 		}
 
+		@Override
 		public String getFieldName() {
 			return fieldName;
-		}
-
-		@Override
-		public String toOrderBySQL() {
-			return this.asc.toOrderBySQL();
 		}
 	}
 

@@ -9,7 +9,10 @@ import net.examp1e.picoorm.types.AnyType;
 public class Condition<Row extends AbstractRow> {
 
 	public static abstract class OrderBy {
-		public abstract String toOrderBySQL();
+		public abstract String getFieldName();
+	}
+
+	public static interface OrderByIsDescending {
 	}
 
 	final TableDefinition<Row> tableDefinition;
@@ -41,7 +44,7 @@ public class Condition<Row extends AbstractRow> {
 
 	public Condition<Row> orderBy(OrderBy... orders) {
 		for (OrderBy order : orders) {
-			orderBy.add(order.toOrderBySQL());
+			orderBy.add(order.getFieldName() + (order instanceof OrderByIsDescending ? " DESC" : " ASC"));
 		}
 		return this;
 	}
