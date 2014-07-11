@@ -14,6 +14,42 @@ public abstract class AnyType {
 
 	public abstract void unbind(ResultSet rs, int parameterIndex) throws SQLException;
 
+	public static abstract class Predicate<Row extends AbstractRow> extends Condition.OrderBy {
+
+		public static class OrderPredicate<Row extends AbstractRow> extends Condition.OrderBy {
+			Predicate<Row> predicate;
+			boolean isAsc;
+			OrderPredicate(Predicate<Row> predicate, boolean isAsc) {
+				this.predicate = predicate;
+				this.isAsc = isAsc;
+			}
+			@Override
+			public String toOrderBySQL() {
+				return this.predicate.fieldName + (isAsc ? " ASC" : " DESC");
+			}
+		}
+
+		protected TableDefinition<Row> tableDefinition;
+		protected String fieldName;
+		public final OrderPredicate<Row> asc = new OrderPredicate<Row>(this, true);
+		public final OrderPredicate<Row> desc = new OrderPredicate<Row>(this, false);
+
+		protected void _init(TableDefinition<Row> tableDefinition, String fieldName) {
+			this.tableDefinition = tableDefinition;
+			this.fieldName = fieldName;
+			tableDefinition.addColumnDefinition(this);
+		}
+
+		public String getFieldName() {
+			return fieldName;
+		}
+
+		@Override
+		public String toOrderBySQL() {
+			return this.asc.toOrderBySQL();
+		}
+	}
+
 }
 
 abstract class AnyTypeImpl<ThisType, ValueType> extends AnyType {
@@ -41,7 +77,7 @@ abstract class AnyTypeImpl<ThisType, ValueType> extends AnyType {
 		this.isSet = true;
 	}
 
-	public static abstract class Predicate<ThisType, Row extends AbstractRow, ValueType> extends net.examp1e.picoorm.Predicate<Row> {
+	public static abstract class Predicate<ThisType, Row extends AbstractRow, ValueType> extends AnyType.Predicate<Row> {
 		@SuppressWarnings("unchecked")
 		public ThisType init(TableDefinition<Row> tableDefinition, String fieldName) {
 			_init(tableDefinition, fieldName);

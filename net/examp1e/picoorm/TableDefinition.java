@@ -11,7 +11,7 @@ import net.examp1e.picoorm.types.AnyType;
 public abstract class TableDefinition<Row extends AbstractRow> {
 
 	public final String TABLE_NAME;
-	private ArrayList<Predicate<Row>> columnDefinitions = new ArrayList<Predicate<Row>>();
+	private ArrayList<AnyType.Predicate<Row>> columnDefinitions = new ArrayList<AnyType.Predicate<Row>>();
 
 	protected TableDefinition(String tableName) {
 		TABLE_NAME = tableName;
@@ -38,7 +38,7 @@ public abstract class TableDefinition<Row extends AbstractRow> {
 		return ret;
 	}
 
-	void addColumnDefinition(Predicate<Row> columnDefinition) {
+	public void addColumnDefinition(AnyType.Predicate<Row> columnDefinition) {
 		this.columnDefinitions.add(columnDefinition);
 	}
 
@@ -79,15 +79,15 @@ public abstract class TableDefinition<Row extends AbstractRow> {
 	private ArrayList<String> _getColumnNames(Row row) {
 		ArrayList<String> columnNames = new ArrayList<String>();
 		if (row == null) {
-			for (Predicate<Row> c : columnDefinitions)
-				columnNames.add(c.fieldName);
+			for (AnyType.Predicate<Row> c : columnDefinitions)
+				columnNames.add(c.getFieldName());
 		} else {
 			// only name the columns that are being set
 			AnyType[] columns = getColumns(row);
 			int columnIndex = 0;
-			for (Predicate<Row> c : columnDefinitions) {
+			for (AnyType.Predicate<Row> c : columnDefinitions) {
 				if (columns[columnIndex++].isSet())
-					columnNames.add(c.fieldName);
+					columnNames.add(c.getFieldName());
 			}
 		}
 		return columnNames;

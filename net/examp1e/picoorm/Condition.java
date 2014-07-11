@@ -9,7 +9,7 @@ import net.examp1e.picoorm.types.AnyType;
 public class Condition<Row extends AbstractRow> {
 
 	public static abstract class OrderBy {
-		abstract String toOrderBySQL();
+		public abstract String toOrderBySQL();
 	}
 
 	final TableDefinition<Row> tableDefinition;
