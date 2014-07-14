@@ -39,6 +39,8 @@ public class Main {
 				System.out.println(Long.toString(m.getId()) + ":" + m.getName());
 			}
 
+			Member.all.delete(conn);
+
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

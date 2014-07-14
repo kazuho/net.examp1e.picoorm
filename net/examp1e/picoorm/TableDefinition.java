@@ -76,6 +76,13 @@ public abstract class TableDefinition<Row extends AbstractRow<Row>> {
 		ps.execute();
 	}
 
+	public void delete(Connection conn, Condition<Row> cond) throws SQLException {
+		String sql = "DELETE FROM " + TABLE_NAME + _buildWhere(cond);
+		PreparedStatement ps = conn.prepareStatement(sql);
+		_bindWhere(cond, ps, 1);
+		ps.execute();
+	}
+
 	private ArrayList<String> _getColumnNames(Row row) {
 		ArrayList<String> columnNames = new ArrayList<String>();
 		if (row == null) {

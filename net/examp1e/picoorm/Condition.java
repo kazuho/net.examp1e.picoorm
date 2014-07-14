@@ -66,4 +66,8 @@ public class Condition<Row extends AbstractRow<Row>> {
 	public void update(Connection conn, Row changes) throws SQLException {
 		tableDefinition.update(conn, this, changes);
 	}
+
+	public void delete(Connection conn) throws SQLException {
+		tableDefinition.delete(conn, this);
+	}
 }
