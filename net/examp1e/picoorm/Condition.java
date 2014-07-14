@@ -59,8 +59,8 @@ public class Condition<Row extends AbstractRow<Row>> {
 		return this;
 	}
 
-	public ArrayList<Row> search(Connection conn) throws SQLException {
-		return tableDefinition.search(conn,  this);
+	public ArrayList<Row> select(Connection conn) throws SQLException {
+		return tableDefinition.select(conn,  this);
 	}
 
 	public void update(Connection conn, Row changes) throws SQLException {

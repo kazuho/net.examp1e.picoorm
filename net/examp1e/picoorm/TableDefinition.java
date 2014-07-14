@@ -21,7 +21,7 @@ public abstract class TableDefinition<Row extends AbstractRow<Row>> {
 
 	public abstract AnyType[] getColumns(Row row);
 
-	public ArrayList<Row> search(Connection conn, Condition<Row> cond) throws SQLException {
+	public ArrayList<Row> select(Connection conn, Condition<Row> cond) throws SQLException {
 		String sql = "SELECT " + _join(_getColumnNames(null)) + " FROM " + TABLE_NAME + _buildWhere(cond);
 		PreparedStatement ps = conn.prepareStatement(sql);
 		this._bindWhere(cond,  ps, 1);

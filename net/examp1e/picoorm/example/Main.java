@@ -22,7 +22,7 @@ public class Main {
 			new Member().setName("kazuho").insert(conn);
 
 			// SELECT FROM member WHERE (name=?) OR (name=?)
-			for (Member m : Member.name.is("yappo").or(Member.name.is("tokuhirom")).orderBy(Member.id.asc).search(conn)) {
+			for (Member m : Member.name.is("yappo").or(Member.name.is("tokuhirom")).orderBy(Member.id.asc).select(conn)) {
 				System.out.println(Long.toString(m.getId()) + ":" + m.getName());
 			}
 
@@ -30,7 +30,7 @@ public class Main {
 			Member.name.is("yappo").update(conn, new Member().setName("seiitaishogun"));
 
 			// SELECT FROM member WHERE id BETWEEN ? AND ?
-			for (Member m: Member.id.between(1L, 1000L).limit(1).search(conn)) {
+			for (Member m: Member.id.between(1L, 1000L).limit(1).select(conn)) {
 				System.out.println(Long.toString(m.getId()) + ":" + m.getName());
 			}
 
