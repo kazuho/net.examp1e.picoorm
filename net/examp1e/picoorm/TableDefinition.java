@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import net.examp1e.picoorm.types.AnyType;
 
-public abstract class TableDefinition<Row extends AbstractRow> {
+public abstract class TableDefinition<Row extends AbstractRow<Row>> {
 
 	public final String TABLE_NAME;
 	private ArrayList<AnyType.Predicate<Row>> columnDefinitions = new ArrayList<AnyType.Predicate<Row>>();

@@ -24,7 +24,7 @@ public class IntegerType extends AnyTypeImpl<IntegerType, Integer> {
 			value = null;
 	}
 
-	public static class Predicate<Row extends AbstractRow> extends AnyTypeImpl.Predicate<Predicate<Row>, Row, Integer> {
+	public static class Predicate<Row extends AbstractRow<Row>> extends AnyTypeImpl.Predicate<Predicate<Row>, Row, Integer> {
 		@Override
 		protected IntegerType createParameter(Integer value) {
 			return new IntegerType().init(value);

@@ -4,7 +4,7 @@ import net.examp1e.picoorm.*;
 import net.examp1e.picoorm.types.*;
 
 // this class definition should be automatically generated from the DDL
-public class Member extends AbstractRow {
+public class Member extends AbstractRow<Member> {
 	
 	// serdes
 	public static final TableDefinition<Member> TABLE_DEFINITION = new TableDefinition<Member>("member") {

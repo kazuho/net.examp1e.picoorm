@@ -22,7 +22,7 @@ public class StringType extends AnyTypeImpl<StringType, String> {
 		value = rs.getString(parameterIndex);
 	}
 
-	public static class Predicate<Row extends AbstractRow> extends AnyTypeImpl.Predicate<Predicate<Row>, Row, String> {
+	public static class Predicate<Row extends AbstractRow<Row>> extends AnyTypeImpl.Predicate<Predicate<Row>, Row, String> {
 		@Override
 		protected StringType createParameter(String value) {
 			return new StringType().init(value);

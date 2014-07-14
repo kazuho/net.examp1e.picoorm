@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import net.examp1e.picoorm.types.AnyType;
 
-public class Condition<Row extends AbstractRow> {
+public class Condition<Row extends AbstractRow<Row>> {
 
 	public static abstract class OrderBy {
 		public abstract String getFieldName();

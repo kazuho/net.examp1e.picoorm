@@ -14,9 +14,9 @@ public abstract class AnyType {
 
 	public abstract void unbind(ResultSet rs, int parameterIndex) throws SQLException;
 
-	public static abstract class Predicate<Row extends AbstractRow> extends Condition.OrderBy {
+	public static abstract class Predicate<Row extends AbstractRow<Row>> extends Condition.OrderBy {
 
-		private static class OrderPredicate<Row extends AbstractRow> extends Condition.OrderBy {
+		private static class OrderPredicate<Row extends AbstractRow<Row>> extends Condition.OrderBy {
 			private Predicate<Row> predicate;
 			OrderPredicate<Row> init(Predicate<Row> predicate) {
 				this.predicate = predicate;
@@ -27,7 +27,7 @@ public abstract class AnyType {
 				return this.predicate.getFieldName();
 			}
 		}
-		private static class DescendingOrderPredicate<Row extends AbstractRow> extends OrderPredicate<Row> implements Condition.OrderByIsDescending {
+		private static class DescendingOrderPredicate<Row extends AbstractRow<Row>> extends OrderPredicate<Row> implements Condition.OrderByIsDescending {
 		}
 
 		protected TableDefinition<Row> tableDefinition;
@@ -74,7 +74,7 @@ abstract class AnyTypeImpl<ThisType, ValueType> extends AnyType {
 		this.isSet = true;
 	}
 
-	public static abstract class Predicate<ThisType, Row extends AbstractRow, ValueType> extends AnyType.Predicate<Row> {
+	public static abstract class Predicate<ThisType, Row extends AbstractRow<Row>, ValueType> extends AnyType.Predicate<Row> {
 		@SuppressWarnings("unchecked")
 		public ThisType init(TableDefinition<Row> tableDefinition, String fieldName) {
 			_init(tableDefinition, fieldName);

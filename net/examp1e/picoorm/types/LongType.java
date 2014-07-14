@@ -24,7 +24,7 @@ public class LongType extends AnyTypeImpl<LongType, Long> {
 			value = null;
 	}
 
-	public static class Predicate<Row extends AbstractRow> extends AnyTypeImpl.Predicate<Predicate<Row>, Row, Long> {
+	public static class Predicate<Row extends AbstractRow<Row>> extends AnyTypeImpl.Predicate<Predicate<Row>, Row, Long> {
 		@Override
 		protected LongType createParameter(Long value) {
 			return new LongType().init(value);
