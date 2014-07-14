@@ -21,6 +21,11 @@ public class Main {
 			new Member().setName("tokuhirom").insert(conn);
 			new Member().setName("kazuho").insert(conn);
 
+			// SELECT FROM member;
+			for (Member m : Member.all.select(conn)) {
+				System.out.println(Long.toString(m.getId()) + ":" + m.getName());
+			}
+
 			// SELECT FROM member WHERE (name=?) OR (name=?)
 			for (Member m : Member.name.is("yappo").or(Member.name.is("tokuhirom")).orderBy(Member.id.asc).select(conn)) {
 				System.out.println(Long.toString(m.getId()) + ":" + m.getName());
