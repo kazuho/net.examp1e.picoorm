@@ -21,7 +21,7 @@ public class Member extends AbstractRow<Member> {
 		return TABLE_DEFINITION;
 	}
 
-	public static Condition<Member> all = new Condition<Member>(TABLE_DEFINITION, "1");
+	public final static Condition<Member> all = new Condition<Member>(TABLE_DEFINITION, "1");
 
 	public final static LongType.Predicate<Member> id = new LongType.Predicate<Member>().init(TABLE_DEFINITION, "id");
 	private LongType _id = new LongType().init(0L);
